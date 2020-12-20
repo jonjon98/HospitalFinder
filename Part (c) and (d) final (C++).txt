@@ -1,0 +1,349 @@
+// Program to print BFS traversal from a given
+// source vertex. BFS(int s) traverses vertices
+// reachable from s.
+#include<iostream>
+#include <list>
+#include<vector>
+#include<fstream>
+#include<string>
+#include <sstream>
+#define INFINITY 2000000
+int count_Edge=0;
+int no_of_comp;
+using namespace std;
+int order[2000000];
+// This class represents a directed graph using
+// adjacency list representation
+
+class Graph
+{
+    int V;    // No. of vertices
+
+    // Pointer to an array containing adjacency
+    // lists
+    //vector<pair<int, int[]> > path;
+    list<int> *adj;
+public:
+    Graph(int V);  // Constructor for graph
+    int distance[2000000];
+    void addEdge(int v, int w); // function to add an edge to graph
+
+    // prints BFS traversal from a given source s
+    void BFS(int s);
+    void printdistance();
+};
+Graph::Graph(int V)
+{
+    this->V = V;
+    adj = new list<int>[V];
+
+}
+
+void Graph::addEdge(int v, int w)
+{
+    adj[v].push_back(w);    // Add w to vís list.
+}
+
+void Graph::BFS(int s)
+{
+    int count=0;
+    for(int i=0;i<V;i++)
+    {
+        distance[i]=0;
+    }
+
+    // Mark all the vertices as not visited
+    bool *visited = new bool[V];
+    vector<vector<int> > path;
+    for(int i = 0; i < V; i++)
+    {
+        visited[i] = false;
+    }
+    // Create a queue for BFS
+    list<int> queue;
+    // Mark the current node as visited and enqueue it
+    visited[s] = true;
+    queue.push_back(s);
+
+
+    // 'i' will be used to get all adjacent
+    // vertices of a vertex
+    list<int>::iterator i;
+    int j=0;
+    while(!queue.empty())
+    {
+        j++;
+        // Dequeue a vertex from queue
+        int x = queue.front();
+        queue.pop_front();
+
+        // Get all adjacent vertices of the dequeued
+        // vertex s. If a adjacent has not been visited,
+        // then mark it visited and enqueue it
+        for (i = adj[x].begin(); i != adj[x].end(); ++i)
+        {
+            count_Edge++;
+
+            if (!visited[*i])
+            {
+                distance[*i]=distance[x]+1;
+                visited[*i] = true;
+                queue.push_back(*i);
+            }
+        }
+        order[count]=x;
+        count++;
+
+
+    }
+}
+
+//swap
+//function to swap 2 elements
+void swap(int* x, int* y)
+{
+    int temp = *x;
+    *x = *y;
+    *y = temp;
+}
+
+/*partition
+Takes the last element as the pivot and arranges the array such that
+all elememnts smaller than the pivot will be on the left of the pivot
+and all elements larger than the pivot will be on the right of the pivot*/
+int partition (int v1[], int start, int end)
+{
+    int pivot = v1[end];                        // pivot
+    int i = (start - 1);                        // Index of smaller element
+
+    for (int j = start; j <= end - 1; j++)
+    {
+        if (v1[j] < pivot)                      // if current element is smaller than the pivot
+        {
+            no_of_comp++;
+            i++;                                // increment index of smaller element
+            swap(&v1[i], &v1[j]);
+        }
+    }
+    swap(&v1[i + 1], &v1[end]);
+    return (i + 1);
+}
+
+/*quickSort
+v1[] is the array to be sorted,
+start is the starting index,
+end is the ending index */
+void quickSort(int v1[], int start, int end)
+{
+    if (start < end)
+    {
+
+        int par = partition(v1, start, end);    // par is partitioning index
+
+        //separately sort elements
+        quickSort(v1, start, par - 1);
+        quickSort(v1, par + 1, end);
+    }
+}
+
+// Driver program to test methods of graph class
+int main()
+{
+    //input file and output file starts here//
+    string inputFile1name;
+    string inputFile2name;
+    string outputFilename;
+
+    cout<<"Enter name of node file (Eg. nodefile.txt):";
+    cin>>inputFile1name;
+    std::ifstream inputFile1(inputFile1name);
+    std::ifstream inputFile1_1(inputFile1name);
+    if (!inputFile1){
+        std::cerr << "Failed to open file: "<<inputFile1name;
+        std::cerr << "File does not exist or there is a typo error!";
+        return 1;
+    }
+
+    cout<<"Enter name of hospital file (Eg. hospitalfile.txt):";
+    cin>>inputFile2name;;
+    std::ifstream inputFile2(inputFile2name);
+    std::ifstream inputFile2_1(inputFile2name);
+    if (!inputFile2){
+        std::cerr << "Failed to open file: "<<inputFile2name;
+        std::cerr << " File does not exist or there is a typo error!";
+        return 1;
+    }
+
+    cout<<"Enter name of output file (Eg. outputfile.txt):";
+    cin>>outputFilename;
+
+    // Node file handling
+    std::string str;
+    int node_Size;
+    int line_index = 0;
+
+    while (std::getline(inputFile1, str)){
+        if(line_index == 2){
+            std::string s = str;
+            std::string delimiter = " ";
+            int counttoken = 0;
+            size_t pos1 = 0;
+            std::string token;
+            while ((pos1 = s.find(delimiter)) != std::string::npos) {
+                token = s.substr(0, pos1);
+                stringstream degree0(s);
+                if(counttoken == 2){
+                    degree0 >> node_Size;
+                    node_Size++;
+                    //std::cout << node_Size << std::endl;
+                }
+                s.erase(0, pos1 + delimiter.length());
+                counttoken++;
+            }
+
+        }
+        line_index += 1;
+    }
+    //std::cout << node_Size << std::endl;
+    Graph g(node_Size);
+    line_index = 0;
+    while (std::getline(inputFile1_1, str)){
+        if(line_index >= 4){
+            std::string the_space = "\t";
+            size_t pos2 = 0;
+            std::string first_number;
+            int convert1 = 0;
+            int convert2 = 0;
+            while ((pos2 = str.find(the_space)) != std::string::npos) {
+                first_number = str.substr(0, pos2);
+                stringstream degree1(first_number);
+                degree1 >> convert1;
+
+                str.erase(0, pos2 + the_space.length());
+
+                stringstream degree2(str);
+                degree2 >> convert2;
+
+            }
+            g.addEdge(convert1, convert2);
+        }
+        line_index++;
+    }
+
+    // Hospital file handling
+    int h;          //h stores the number of hospitals
+    std::string str2;
+
+    line_index = 0;
+    while (std::getline(inputFile2, str2)){
+        //cout<<str2<<"\n";
+        if(line_index == 0){
+            std::string the_space = " ";
+            size_t pos2 = 0;
+            std::string first_entry;
+            int convert3 = 0;
+            while ((pos2 = str2.find(the_space)) != std::string::npos) {
+                first_entry = str2.substr(0, pos2);
+                str2.erase(0, pos2 + the_space.length());
+                stringstream degree3(str2);
+                degree3 >> convert3;
+                h = convert3;
+                cout<<h<<"\n";
+
+            }
+        }
+        line_index++;
+    }
+
+    int s[h]; //s is an array which stores the hospital number
+    line_index = 0;
+    while (std::getline(inputFile2_1, str2)){
+        //cout<<str2<<"\n";
+        if(line_index > 0){
+            int convert4 = 0;
+            stringstream degree4(str2);
+            degree4 >> convert4;
+            s[line_index-1] = convert4;
+            cout<<s[line_index-1]<<"\n";
+        }
+        line_index++;
+    }
+
+
+    vector<vector<int> > dist;
+
+    cout << "Following is Breadth First Traversal "
+         << "(starting from vertex 2) \n";
+    int k;                              //k stores the value of the number of nearest hospitals the user wants
+    cout<<endl<<"Enter nearest number: ";
+    cin>>k;
+    //Variables needed
+    int v1[node_Size][h];               //stores the sorted array of nearest hospitals to each node
+    int storage[node_Size][h];          //stores the unsorted array of nearest hospitals to each node
+    int storageOfIndex[node_Size][h];   //stores the index of the corresponding hospitals in v1
+
+    //Initialise each element in the 2d arrays to INFINITY
+    for(int i=0;i<node_Size;i++)
+    {
+        for(int j=0;j<h;j++)
+        {
+            v1[i][j]=INFINITY;
+            storage[i][j]=INFINITY;
+            storageOfIndex[i][j]=INFINITY;
+        }
+    }
+
+    //Performing Bredth First Search concurrently for each hospital and storing the corresponding results in v1
+    int l=0;                            //variable to allow iteration through each hopsital in every node
+    for(int i=0;i<h;i++)
+    {
+        //cin>>s[i];
+        g.BFS(s[i]);
+
+        for(int i=0;i<node_Size;i++)
+        {
+            v1[order[i]][l]=g.distance[order[i]];
+        }
+        l++;
+    }
+     //Making a copy of the unsorted v1 in storage before sorting
+    for(int i=0;i<node_Size;i++){
+        for(int j=0;j<h;j++)
+        {
+            storage[order[i]][j]=v1[order[i]][j];
+        }
+    }
+
+    //Sort j values for each v1[order[i]] using quickSort
+    for(int i=0;i<node_Size;i++)
+    {
+        int n = sizeof(v1[order[i]]) / sizeof(v1[order[i]][0]);
+        quickSort(v1[order[i]], 0, n-1);
+    }
+    ofstream output_file;
+    output_file.open(outputFilename , ios::out);
+    //print sorted
+    //Finding the corssponding hospital index in storage
+    for(int i=0;i<node_Size-1;i++)
+           {
+               output_file<<order[i]<<" : ";
+               for(int j=0;j<k;j++)
+               {
+                   for(int l=0;l<h;l++){
+                       if(v1[order[i]][j]==storage[order[i]][l]){           //finding the index of shortest distance
+                           storage[order[i]][l]=-1;
+                           storageOfIndex[order[i]][j]=l;
+                           l=h;
+                       }
+                   }
+                   output_file<<endl<<"\tHospital number: "<<s[storageOfIndex[order[i]%node_Size][j]]<<" is at a distance of "<<v1[order[i]%node_Size][j]<< " from the node"<<endl;
+
+               }
+               output_file<<endl;
+           }
+
+    cout<<endl<<count_Edge++;
+    cout<<endl<<no_of_comp;
+    return 0;
+
+}

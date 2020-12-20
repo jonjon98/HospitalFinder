@@ -1,0 +1,271 @@
+// Program to print BFS traversal from a given
+// source vertex. BFS(int s) traverses vertices
+// reachable from s.
+#include<iostream>
+#include <list>
+#include<vector>
+#include<fstream>
+#include<string>
+#include <sstream>
+using namespace std;
+int counter=0;
+//string outputFilename;
+// This class represents a directed graph using
+// adjacency list representation
+class Graph
+{
+    int V;    // No. of vertices
+    int distance[100000];
+    // Pointer to an array containing adjacency
+    // lists
+    vector<pair<int, int[]>> path;
+    list<int> *adj;
+public:
+    Graph(int V);  // Constructor
+    // function to add an edge to graph
+    void addEdge(int v, int w);
+
+    // prints BFS traversal from a given source s
+    void BFS(int s[],int n,string outputFilename);
+    void printdistance();
+};
+Graph::Graph(int V)
+{
+    this->V = V;
+    adj = new list<int>[V];
+    for(int i=0;i<V;i++)
+    {
+        distance[i]=0;
+    }
+}
+
+void Graph::addEdge(int v, int w)
+{
+    if(v<this->V && w<this->V)
+    {
+        adj[v].push_back(w);// Add w to vís list.
+    }
+}
+
+void Graph::BFS(int s[],int n,string outputFilename)
+{
+    ofstream output_file;
+    output_file.open(outputFilename);
+    int count=0;
+
+    // Mark all the vertices as not visited
+    bool *visited = new bool[V];
+    vector<vector<int> > path;
+    for(int i = 0; i < V; i++)
+    {
+        visited[i] = false;
+    }
+    // Create a queue for BFS
+    for(int i=0;i<n;i++)
+    {
+        //cout<<s[i]<<" ";
+    }
+    cout<<endl;
+    list<int> queue;
+    // Mark the current node as visited and enqueue it
+    for(int i=0;i<n;i++)
+    {
+        visited[s[i]] = true;
+        //pred[s[i]]=s[i];
+        vector<int> v1;
+        v1.push_back(s[i]);
+        path.push_back(v1);
+        queue.push_back(s[i]);
+    }
+    // 'i' will be used to get all adjacent
+    // vertices of a vertex
+    list<int>::iterator i;
+    int j=0;
+    while(!queue.empty())
+    {
+        j++;
+        // Dequeue a vertex from queue and print it
+        //match the queue index with the root indiex of the graph
+        int x = queue.front();          // ouput writing in output file
+        //cout<<"Nearest hospital distance for "<<x<<" is:\n";
+        output_file<<"Nearest hospital distance for "<<x<<" is:\n";
+
+        //cout<<distance[x]<<"\n";
+        output_file<<distance[x]<<"\n";
+
+        //cout<<"Path for "<<x<<" is:\n";
+        output_file<<"Path for "<<x<<" is:\n";
+        for (int j = 0; j < path[count].size(); j++)
+        {
+            if(j==(path[count].size()-1))
+            {
+               // cout << path[count][j]<<" ";
+                output_file << path[count][j]<<" ";
+            }
+            else
+            {
+                //cout << path[count][j]<<"<-";
+                output_file << path[count][j]<<"<-";
+            }
+        }
+        //cout<<endl;
+        output_file<<endl;
+        queue.pop_front();
+
+        // Get all adjacent vertices of the dequeued
+        // vertex s. If a adjacent has not been visited,
+        // then mark it visited and enqueue it
+        for (i = adj[x].begin(); i != adj[x].end(); ++i)
+        {
+            counter++;
+            if (!visited[*i])
+            {
+                vector<int> v1;
+                v1=path[count];
+                v1.push_back(*i);
+                path.push_back(v1);
+                distance[*i]=distance[x]+1;
+                visited[*i] = true;
+                queue.push_back(*i);
+            }
+        }
+       // cout<<endl;
+        count++;
+
+
+    }
+}
+
+
+// Driver program to test methods of graph class
+int main()
+{
+    //input file and output file starts here//
+    string inputFile1name;
+    string inputFile2name;
+    string outputFilename;
+
+    cout<<"Enter name of node file (Eg. nodefile.txt):";
+    cin>>inputFile1name;
+    std::ifstream inputFile1(inputFile1name);
+    std::ifstream inputFile1_1(inputFile1name);
+    if (!inputFile1){
+        std::cerr << "Failed to open file: "<<inputFile1name;
+        std::cerr << " File does not exist or there is a typo error!";
+        return 1;
+    }
+
+    cout<<"Enter name of hospital file (Eg. hospitalfile.txt):";
+    cin>>inputFile2name;
+    std::ifstream inputFile2(inputFile2name);
+    std::ifstream inputFile2_1(inputFile2name);
+    if (!inputFile2){
+        std::cerr << "Failed to open file: "<<inputFile2name;
+        std::cerr << " File does not exist or there is a typo error!";
+        return 1;
+    }
+
+    cout<<"Enter name of output file (Eg. outputfile.txt):";
+    cin>>outputFilename;
+
+    // Node file handling
+    std::string str;
+    int node_Size=0;
+    int line_index = 0;
+
+    while (std::getline(inputFile1, str)){
+        if(line_index == 2){
+            std::string s = str;
+            std::string delimiter = " ";
+            int counttoken = 0;
+            size_t pos1 = 0;
+            std::string token;
+            while ((pos1 = s.find(delimiter)) != std::string::npos) {
+                token = s.substr(0, pos1);
+                stringstream degree0(s);
+                if(counttoken == 2){
+                    degree0 >> node_Size;
+                    node_Size++;
+                    //std::cout << node_Size << std::endl;
+                }
+                s.erase(0, pos1 + delimiter.length());
+                counttoken++;
+            }
+
+        }
+        line_index += 1;
+    }
+    //std::cout << node_Size << std::endl;
+    Graph g(node_Size);
+    line_index = 0;
+    while (std::getline(inputFile1_1, str)){
+        if(line_index >=4){
+            std::string the_space = "\t";
+            size_t pos2 = 0;
+            std::string first_number;
+            int convert1 = 0;
+            int convert2 = 0;
+            while ((pos2 = str.find(the_space)) != std::string::npos) {
+                first_number = str.substr(0, pos2);
+                stringstream degree1(first_number);
+                degree1 >> convert1;
+
+                str.erase(0, pos2 + the_space.length());
+
+                stringstream degree2(str);
+                degree2 >> convert2;
+
+            }
+            g.addEdge(convert1, convert2);
+        }
+        line_index++;
+    }
+
+    // Hospital file handling
+    int h;          //h stores the number of hospitals
+    std::string str2;
+
+    line_index = 0;
+    while (std::getline(inputFile2, str2)){
+        //cout<<str2<<"\n";
+        if(line_index == 0){
+            std::string the_space = " ";
+            size_t pos2 = 0;
+            std::string first_entry;
+            int convert3 = 0;
+            while ((pos2 = str2.find(the_space)) != std::string::npos) {
+                first_entry = str2.substr(0, pos2);
+                str2.erase(0, pos2 + the_space.length());
+                stringstream degree3(str2);
+                degree3 >> convert3;
+                h = convert3;
+                cout<<h<<"\n";
+
+            }
+        }
+        line_index++;
+    }
+
+    int s[h]; //s is an array which stores the hospital number
+    line_index = 0;
+    while (std::getline(inputFile2_1, str2)){
+        //cout<<str2<<"\n";
+        if(line_index > 0){
+            int convert4 = 0;
+            stringstream degree4(str2);
+            degree4 >> convert4;
+            s[line_index-1] = convert4;
+            cout<<s[line_index-1]<<"\n";
+        }
+        line_index++;
+    }
+
+
+
+
+
+    //Performing Breadth First Search
+
+    g.BFS(s,h,outputFilename);
+    return 0;
+}
